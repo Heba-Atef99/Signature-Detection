@@ -1,0 +1,22 @@
+1-getdata-->function that takes annotations file path and reads the labels and bounding boxes
+2-get_anchor_gt-->generator function that returns each time X,Y where X is the image and Y is ycls 25x18x9 and yreg 25x18x36
+  get_anchor_gt steps:
+  - augment image if needed
+  - resize image
+  - call Calc_rpn_ function which checks the IoU of the anchors with the image's actual bboxes and return the target regression yreg and target classification ycls
+  - normalization
+3-Build the network
+  Build rpn layer
+  Build classifier_layer
+4-In each iter. of an epoch:
+  - get next image's X , Y using get_anchor_data generator
+  - send this X, Y to rpn_model
+  - train rpn_model
+  - get predicted ycls and yreg (25x18x9-->4050 region)
+  - apply max_supression through the rpn_to_roi function (4050-->300)
+  - get X,Y to be given to classifier model through calc_iou function 
+    - returned labels: X2: rpn_predicted_regions, Y1: one hot encoding for the classes, Y2: target coords for regression layer
+  - out of the 300 regions choose num regions for this iter. (ex. 2 pos anchors and 2 negative anchors)
+  - train classifier model
+  - record losses and accuracies
+  
